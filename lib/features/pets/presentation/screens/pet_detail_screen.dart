@@ -65,8 +65,8 @@ class _PetDetailScreenState extends ConsumerState<PetDetailScreen> {
               column: 'pet_id',
               value: widget.petId,
             ),
-            callback: (payload) {
-              _reloadComments();
+            callback: (payload) async {
+              await _reloadComments();
             },
           )
           .subscribe();
@@ -86,8 +86,8 @@ class _PetDetailScreenState extends ConsumerState<PetDetailScreen> {
               column: 'pet_id',
               value: widget.petId,
             ),
-            callback: (payload) {
-              _reloadSightings();
+            callback: (payload) async {
+              await _reloadSightings();
             },
           )
           .subscribe();
@@ -119,15 +119,15 @@ class _PetDetailScreenState extends ConsumerState<PetDetailScreen> {
   }
 
   Future<void> _load() async {
-    final pet =
-        await ref.read(petDataSourceProvider).fetchPetById(widget.petId);
-    if (pet != null) {
-      final sightings = await ref
-          .read(sightingDataSourceProvider)
-          .fetchSightings(widget.petId);
-      final comments = await ref
-          .read(commentDataSourceProvider)
-          .fetchComments(widget.petId);
+    try {
+      final results = await Future.wait([
+        ref.read(petDataSourceProvider).fetchPetById(widget.petId),
+        ref.read(sightingDataSourceProvider).fetchSightings(widget.petId),
+        ref.read(commentDataSourceProvider).fetchComments(widget.petId),
+      ]);
+      final pet = results[0] as Pet?;
+      final sightings = results[1] as List<Sighting>;
+      final comments = results[2] as List<Comment>;
       if (mounted) {
         setState(() {
           _pet = pet;
@@ -136,7 +136,8 @@ class _PetDetailScreenState extends ConsumerState<PetDetailScreen> {
           _loading = false;
         });
       }
-    } else {
+    } catch (e) {
+      print('[PetDetailScreen] Erro ao carregar dados: $e');
       if (mounted) setState(() { _loading = false; });
     }
   }

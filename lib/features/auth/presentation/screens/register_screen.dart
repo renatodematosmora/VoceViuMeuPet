@@ -42,7 +42,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     }
     final error = await ref.read(authProvider.notifier).signUp(
           email: _emailCtrl.text.trim(),
-          password: _passCtrl.text,
+          password: _passCtrl.text.trim(),
           fullName: _nameCtrl.text.trim(),
         );
     if (!mounted) return;

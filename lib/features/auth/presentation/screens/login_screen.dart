@@ -46,7 +46,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _loginWithGoogle() async {
     final error = await ref.read(authProvider.notifier).signInWithGoogle();
     if (!mounted) return;
-    if (error != null) context.showSnackBar(error, isError: true);
+    if (error != null) {
+      context.showSnackBar(error, isError: true);
+    } else {
+      context.go(AppRoutes.feed);
+    }
   }
 
   @override

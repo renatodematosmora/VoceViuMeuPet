@@ -59,7 +59,7 @@ class GeolocationService {
           if (end != -1) {
             addressStr = cut.substring(0, end)
                 .replaceAll(r'\"', '"')
-                .replaceAll(r'\\', r'\');
+                .replaceAll('\\\\', '\\');
           }
         }
       }

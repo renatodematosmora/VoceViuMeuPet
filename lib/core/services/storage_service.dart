@@ -1,6 +1,11 @@
 import 'dart:typed_data';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:voce_viu_meu_pet/core/errors/app_exception.dart';
+
+final storageServiceProvider = Provider<StorageService>(
+  (ref) => StorageService(Supabase.instance.client),
+);
 
 /// Serviço centralizado para upload de arquivos no Supabase Storage
 class StorageService {

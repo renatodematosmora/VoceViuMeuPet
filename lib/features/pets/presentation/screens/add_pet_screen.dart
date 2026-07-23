@@ -175,7 +175,12 @@ class _AddPetScreenState extends ConsumerState<AddPetScreen> {
     setState(() => _submitting = true);
     try {
       final ds = ref.read(petDataSourceProvider);
-      final userId = Supabase.instance.client.auth.currentUser!.id;
+      final currentUser = Supabase.instance.client.auth.currentUser;
+      if (currentUser == null) {
+        context.showSnackBar('Faça login para continuar', isError: true);
+        return;
+      }
+      final userId = currentUser.id;
 
       // Upload fotos
       final photoUrls = <String>[];
