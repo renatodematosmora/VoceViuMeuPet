@@ -17,6 +17,14 @@ migrate_working_dir/
 .env.local
 .env.*.local
 
+# Configuração local do Claude Code (caminhos e workflow da máquina — não versionar)
+.claude/
+.claude/settings.local.json
+
+# Artefatos/cache locais do Supabase CLI (regenerados localmente — não versionar)
+supabase/.temp/
+supabase/.branches/
+
 # IntelliJ related
 *.iml
 *.ipr
