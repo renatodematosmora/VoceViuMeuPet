@@ -47,6 +47,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
   void _init() {
     final user = _ds.currentUser;
     if (user != null) _loadProfile(user.id);
+    // Carrega o perfil quando a sessão é estabelecida — inclusive no retorno
+    // do fluxo OAuth (Google), que é assíncrono e não retorna o user na chamada.
+    _ds.authStateStream.listen((data) {
+      final sessionUser = data.session?.user;
+      if (sessionUser != null && state.profile == null) {
+        _loadProfile(sessionUser.id);
+      }
+    });
   }
 
   Future<void> _loadProfile(String userId) async {
@@ -90,8 +98,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<String?> signInWithGoogle() async {
     state = state.copyWith(isLoading: true);
     try {
-      final res = await _ds.signInWithGoogle();
-      if (res.user != null) await _loadProfile(res.user!.id);
+      await _ds.signInWithGoogle();
+      // O perfil é carregado pelo listener de authStateStream quando a
+      // sessão OAuth é estabelecida (o redirect não retorna o user aqui).
       state = state.copyWith(isLoading: false);
       return null;
     } catch (e) {
@@ -124,6 +133,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   String _parseError(Object e) {
     final msg = e.toString().toLowerCase();
+    if (msg.contains('not confirmed')) {
+      return 'E-mail ainda não confirmado. Verifique sua caixa de entrada '
+          'e confirme o cadastro antes de entrar.';
+    }
     if (msg.contains('invalid login')) return 'E-mail ou senha incorretos';
     if (msg.contains('email already')) return 'E-mail já cadastrado';
     if (msg.contains('network')) return 'Sem conexão com internet';

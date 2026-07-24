@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:voce_viu_meu_pet/core/services/storage_service.dart';
 import 'package:voce_viu_meu_pet/features/auth/data/datasources/auth_datasource.dart';
 import 'package:voce_viu_meu_pet/features/auth/data/models/profile_model.dart';
 
@@ -10,18 +11,21 @@ class MockGotrueClient extends Mock implements GoTrueClient {}
 class MockAuthResponse extends Mock implements AuthResponse {}
 class MockUser extends Mock implements User {}
 class MockSession extends Mock implements Session {}
+class MockStorageService extends Mock implements StorageService {}
 
 void main() {
   group('AuthDataSource', () {
     late MockSupabaseClient mockClient;
     late MockGotrueClient mockGotrueClient;
+    late MockStorageService mockStorageService;
     late AuthDataSource authDataSource;
 
     setUp(() {
       mockClient = MockSupabaseClient();
       mockGotrueClient = MockGotrueClient();
+      mockStorageService = MockStorageService();
       when(() => mockClient.auth).thenReturn(mockGotrueClient);
-      authDataSource = AuthDataSource(mockClient);
+      authDataSource = AuthDataSource(mockClient, mockStorageService);
     });
 
     test('signInWithEmail returns AuthResponse on success', () async {
